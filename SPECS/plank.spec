@@ -1,7 +1,3 @@
-%global commit      013d0513bcf029426db19aea4d8b19c7b3b0077c
-%global shortcommit %(c=%{commit}; echo ${c:0:7})
-%global commitdate  20210202
-
 %global common_description %{expand:
 Plank is meant to be the simplest dock on the planet. The goal is to
 provide just what a dock needs and absolutely nothing more. It is,
@@ -15,16 +11,11 @@ to add fancier things like Docklets, painters, settings dialogs, etc.}
 Name:           plank
 Summary:        Stupidly simple Dock
 Version:        0.11.89
-Release:        13.%{commitdate}.git%{shortcommit}%{?dist}
+Release:        13%{?dist}
 License:        GPLv3+
 
 URL:            https://launchpad.net/%{name}
-# use sources from elementary OS dock "fork" which is actually maintained
-# * dropped patented zoom animation
-# * fixed session integration
-# * support for automatic dark theme
-# * migrated from autotools to meson
-Source0:        https://github.com/elementary/dock/archive/%{commit}/dock-%{shortcommit}.tar.gz
+Source0:        https://launchpad.net/plank/1.0/%{version}/+download/%{name}-%{version}.tar.xz
 
 BuildRequires:  desktop-file-utils
 BuildRequires:  gettext
@@ -86,24 +77,20 @@ This package contains the files necessary to develop against plank.
 
 
 %prep
-%autosetup -n dock-%{commit} -p1
-
+%setup -q
 
 %build
-%meson -Denable-apport=false
-%meson_build
+%configure --disable-apport
+%make_build
 
 
 %install
-%meson_install
+%make_install
 
 %find_lang %{name}
 
 
 %check
-desktop-file-validate \
-    %{buildroot}/%{_sysconfdir}/xdg/autostart/%{name}.desktop
-
 desktop-file-validate \
     %{buildroot}/%{_datadir}/applications/%{name}.desktop
 
@@ -112,7 +99,6 @@ appstream-util validate-relax --nonet \
 
 
 %files -f %{name}.lang
-%config(noreplace) %{_sysconfdir}/xdg/autostart/%{name}.desktop
 
 %{_bindir}/%{name}
 
@@ -126,8 +112,7 @@ appstream-util validate-relax --nonet \
 
 %files libs
 %license COPYING COPYRIGHT
-%doc README.md AUTHORS NEWS
-
+%doc AUTHORS NEWS
 %{_libdir}/lib%{name}.so.1*
 %dir %{_libdir}/%{name}
 
